@@ -1,4 +1,4 @@
-package tech.power.RNBraintreeDropIn;
+package com.xbenjii.RNBraintreeDropIn;
 
 import android.app.Activity;
 

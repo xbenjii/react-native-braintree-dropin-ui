@@ -3,8 +3,8 @@
 > React Native integration of Braintree Drop-in for IOS & ANDROID (Apple Pay, Google Pay, Paypal, Venmo, Credit Card)
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/wgltony/react-native-braintree-dropin-ui/master/node_modules/iphone.png" width="250">
-<img src="https://raw.githubusercontent.com/wgltony/react-native-braintree-dropin-ui/master/node_modules/android.png" width="250">
+<img src="https://raw.githubusercontent.com/xbenjii/react-native-braintree-dropin-ui/master/node_modules/iphone.png" width="250">
+<img src="https://raw.githubusercontent.com/xbenjii/react-native-braintree-dropin-ui/master/node_modules/android.png" width="250">
 </p>
 
 ## Getting started
@@ -105,7 +105,7 @@ To enable paypal payments in iOS, you will need to add `setReturnURLScheme` to `
 
 Add in your `MainActivity.java`:
 ```
-    import tech.power.RNBraintreeDropIn.RNBraintreeDropInModule;
+    import com.xbenjii.RNBraintreeDropIn.RNBraintreeDropInModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +130,7 @@ dependencies {
 Add in your `MainApplication.java`:
 
 ```
-  import tech.power.RNBraintreeDropIn.RNBraintreeDropInPackage;
+  import com.xbenjii.RNBraintreeDropIn.RNBraintreeDropInPackage;
 
 
   return Arrays.<ReactPackage>asList(

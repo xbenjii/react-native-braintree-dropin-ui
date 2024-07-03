@@ -1,4 +1,4 @@
-package tech.power.RNBraintreeDropIn;
+package com.xbenjii.RNBraintreeDropIn;
 
 import java.util.Arrays;
 import java.util.Collections;
