@@ -97,7 +97,11 @@ RCT_EXPORT_METHOD(show:(NSDictionary*)options resolver:(RCTPromiseResolveBlock)r
             @[
                 [PKPaymentSummaryItem summaryItemWithLabel:merchantName amount:orderTotal]
             ];
-
+        if (@available(iOS 11.0, *)) {
+            self.paymentRequest.requiredBillingContactFields = [[NSSet<PKContactField> alloc] initWithObjects: PKContactFieldPostalAddress, PKContactFieldEmailAddress, PKContactFieldName, nil];
+        } else {
+            reject(@"MISSING_OPTIONS", @"Not all required Apple Pay options were provided", nil);
+        }
         self.viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest: self.paymentRequest];
         self.viewController.delegate = self;
     }else{
@@ -144,6 +148,15 @@ RCT_EXPORT_METHOD(show:(NSDictionary*)options resolver:(RCTPromiseResolveBlock)r
     } else {
         reject(@"INVALID_CLIENT_TOKEN", @"The client token seems invalid", nil);
     }
+}
+
+RCT_EXPORT_METHOD(getDeviceData:(NSString*)clientToken resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    BTAPIClient *braintreeClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
+    BTDataCollector *dataCollector = [[BTDataCollector alloc] initWithAPIClient:braintreeClient];
+    [dataCollector collectDeviceData:^(NSString * _Nonnull deviceData) {
+        resolve(deviceData);
+    }];
 }
 
 RCT_EXPORT_METHOD(fetchMostRecentPaymentMethod:(NSString*)clientToken
@@ -222,7 +235,23 @@ RCT_EXPORT_METHOD(tokenizeCard:(NSString*)clientToken
             [result setObject:[NSString stringWithFormat: @"%@ %@", @"", tokenizedApplePayPayment.type] forKey:@"description"];
             [result setObject:[NSNumber numberWithBool:false] forKey:@"isDefault"];
             [result setObject:self.deviceDataCollector forKey:@"deviceData"];
-
+            if(payment.billingContact && payment.billingContact.postalAddress) {
+                [result setObject:payment.billingContact.name.givenName forKey:@"firstName"];
+                [result setObject:payment.billingContact.name.familyName forKey:@"lastName"];
+                if(payment.billingContact.emailAddress) {
+                    [result setObject:payment.billingContact.emailAddress forKey:@"email"];
+                }
+                NSString *street = payment.billingContact.postalAddress.street;
+                NSArray *splitArray = [street componentsSeparatedByString:@"\n"];
+                [result setObject:splitArray[0] forKey:@"addressLine1"];
+                if([splitArray count] > 1 && splitArray[1]) {
+                    [result setObject:splitArray[1] forKey:@"addressLine2"];
+                }
+                [result setObject:payment.billingContact.postalAddress.city forKey:@"city"];
+                [result setObject:payment.billingContact.postalAddress.state forKey:@"state"];
+                [result setObject:payment.billingContact.postalAddress.ISOCountryCode forKey:@"country"];
+                [result setObject:payment.billingContact.postalAddress.postalCode forKey:@"zip1"];
+            }
             self.resolve(result);
 
         } else {
