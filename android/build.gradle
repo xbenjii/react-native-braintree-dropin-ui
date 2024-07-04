@@ -25,6 +25,13 @@ def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+def getNpmVersion() {
+    def inputFile = file("$rootDir/../package.json")
+    def jsonPackage = new JsonSlurper().parseText(inputFile.text)
+
+    return jsonPackage["version"]
+}
+
 static def findNodeModules(baseDir) {
     def basePath = baseDir.toPath().normalize()
     // Node"s module resolution algorithm searches up to the root directory,
@@ -76,7 +83,7 @@ android {
         compileSdkVersion safeExtGet("compileSdkVersion", 34)
         targetSdkVersion safeExtGet("targetSdkVersion", 34)
         versionCode 1
-        versionName "2.1.0"
+        versionName getNpmVersion()
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
     }
 
