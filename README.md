@@ -3,8 +3,8 @@
 > React Native integration of Braintree Drop-in for IOS & ANDROID (Apple Pay, Google Pay, Paypal, Venmo, Credit Card)
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/xbenjii/react-native-braintree-dropin-ui/master/node_modules/iphone.png" width="250">
-<img src="https://raw.githubusercontent.com/xbenjii/react-native-braintree-dropin-ui/master/node_modules/android.png" width="250">
+<img src="https://raw.githubusercontent.com/xbenjii/react-native-braintree-dropin-ui/master/images/iphone.png" width="250">
+<img src="https://raw.githubusercontent.com/xbenjii/react-native-braintree-dropin-ui/master/images/android.png" width="250">
 </p>
 
 ## Getting started
@@ -289,6 +289,18 @@ BraintreeDropIn.show({
   clientToken: 'token',
   threeDSecure: {
     amount: 1.0,
+    email: 'john.doe@gmail.com',
+    billingAddress: { //optional
+      givenName:"Joe",
+      surname:"Guy",
+      phoneNumber:"12345678",
+      streetAddress:"555 Smith St.",
+      extendedAddress:"#5",
+      locality:"Oakland",
+      region:"CA",
+      countryCodeAlpha2:"US",
+      postalCode:"54321"
+    }
   },
   merchantIdentifier: 'applePayMerchantIdentifier',
   googlePayMerchantId: 'googlePayMerchantId',

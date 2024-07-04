@@ -1,3 +1,6 @@
+import java.nio.file.Paths
+import com.android.Version
+
 buildscript {
     repositories {
         google()
@@ -9,31 +12,32 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion 33
-    buildToolsVersion '33.0.1'
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 33
-        versionCode 1
-        versionName "2.1.0"
-    }
-    lintOptions {
-        abortOnError false
-    }
+def reactNativeArchitectures() {
+    def value = rootProject.getProperties().get("reactNativeArchitectures")
+    return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 }
 
-repositories {
-    mavenCentral()
-    google()
+def isNewArchitectureEnabled() {
+    return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
 }
 
-dependencies {
-    implementation 'com.braintreepayments.api:drop-in:6.16.0'
-    implementation 'com.facebook.react:react-native:+'
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+static def findNodeModules(baseDir) {
+    def basePath = baseDir.toPath().normalize()
+    // Node"s module resolution algorithm searches up to the root directory,
+    // after which the base path will be null
+    while (basePath) {
+        def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
+        def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
+        if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
+            return nodeModulesPath.toString()
+        }
+        basePath = basePath.getParent()
+    }
+    throw new GradleException("@xbenjii/react-native-braintree-dropin-ui: Failed to find node_modules/ path!")
 }
 
 // https://developers.braintreepayments.com/guides/3d-secure/migration/android/v3
@@ -47,4 +51,46 @@ rootProject.allprojects {
             }
         }
     }
+}
+
+apply plugin: "com.android.library"
+if (isNewArchitectureEnabled()) {
+    apply plugin: "com.facebook.react"
+}
+
+def nodeModules = findNodeModules(projectDir)
+logger.warn("[@xbenjii/react-native-braintree-dropin-ui] node_modules found at $nodeModules")
+
+android {
+    if (rootProject.hasProperty("ndkPath")) {
+        ndkPath rootProject.ext.ndkPath
+    }
+    if (rootProject.hasProperty("ndkVersion")) {
+        ndkVersion rootProject.ext.ndkVersion
+    }
+
+    namespace "com.xbenjii.RNBraintreeDropIn"
+
+    defaultConfig {
+        minSdkVersion safeExtGet("minSdkVersion", 21)
+        compileSdkVersion safeExtGet("compileSdkVersion", 34)
+        targetSdkVersion safeExtGet("targetSdkVersion", 34)
+        versionCode 1
+        versionName "2.1.0"
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+}
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+dependencies {
+    implementation 'com.braintreepayments.api:drop-in:6.16.0'
+    implementation "com.facebook.react:react-android:+"
 }

@@ -1,2 +1,6 @@
 build
 .gradle
+.idea
+node_modules
+android/local.properties
+android/*.hprof
