@@ -112,7 +112,7 @@ public class RNBraintreeDropInModule extends ReactContextBaseJavaModule {
       String amount = String.valueOf(threeDSecureOptions.getDouble("amount"));
 
       ThreeDSecureRequest threeDSecureRequest = new ThreeDSecureRequest();
-      threeDSecureRequest.setAmount(threeDSecureOptions.getString("amount"));
+      threeDSecureRequest.setAmount(amount);
       threeDSecureRequest.setVersionRequested(ThreeDSecureRequest.VERSION_2);
 
       if (threeDSecureOptions.hasKey("email")) {
