@@ -106,6 +106,7 @@ repositories {
 
 dependencies {
     implementation 'com.braintreepayments.api:drop-in:6.16.0'
+    implementation 'com.braintreepayments.api:google-pay:4.39.0'
     implementation "com.facebook.react:react-android:+"
     implementation 'org.codehaus.groovy:groovy-json:3.0.22'
 }
