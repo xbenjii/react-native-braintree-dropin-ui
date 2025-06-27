@@ -12,6 +12,22 @@
 }
 RCT_EXPORT_MODULE(RNBraintreeDropIn)
 
+RCT_EXPORT_METHOD(collectDeviceData:(NSString*)clientToken resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if (!clientToken) {
+        reject(@"NO_CLIENT_TOKEN", @"You must provide a client token", nil);
+        return;
+    }
+    BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
+    self.dataCollector = [[BTDataCollector alloc] initWithAPIClient:apiClient];
+
+    [self.dataCollector collectDeviceData:^(NSString * _Nonnull deviceData) {
+        NSMutableDictionary* jsResult = [NSMutableDictionary new];
+        [jsResult setObject:deviceData forKey:@"deviceData"];
+        resolve(jsResult);
+    }];
+}
+
 RCT_EXPORT_METHOD(show:(NSDictionary*)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     BTDropInColorScheme colorScheme;
@@ -114,6 +130,10 @@ RCT_EXPORT_METHOD(show:(NSDictionary*)options resolver:(RCTPromiseResolveBlock)r
         request.vaultManager = YES;
     }
 
+    if (![options[@"vaultCardDefaultValue"] boolValue]) {
+        request.vaultCard = NO;
+    }
+
     if([options[@"cardDisabled"] boolValue]){
         request.cardDisabled = YES;
     }
@@ -198,7 +218,9 @@ RCT_EXPORT_METHOD(getDeviceData:(NSString*)clientToken resolver:(RCTPromiseResol
     BTAPIClient *braintreeClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
     BTDataCollector *dataCollector = [[BTDataCollector alloc] initWithAPIClient:braintreeClient];
     [dataCollector collectDeviceData:^(NSString * _Nonnull deviceData) {
-        resolve(deviceData);
+        NSMutableDictionary* jsResult = [NSMutableDictionary new];
+        [jsResult setObject:deviceData forKey:@"deviceData"];
+        resolve(jsResult);
     }];
 }
 

@@ -58,6 +58,32 @@ public class RNBraintreeDropInModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  private void collectDeviceData(final String clientToken, final Promise promise) {
+    if (clientToken == null) {
+      promise.reject("NO_CLIENT_TOKEN", "You must provide a client token");
+      return;
+    }
+    Activity currentActivity = getCurrentActivity();
+    if (currentActivity == null) {
+      promise.reject("NO_ACTIVITY", "There is no current activity");
+      return;
+    }
+
+    BraintreeClient braintreeClient = new BraintreeClient(currentActivity, clientToken);
+    DataCollector dataCollector = new DataCollector(braintreeClient);
+
+    dataCollector.collectDeviceData(currentActivity, (deviceData, error) -> {
+      String data = deviceData;
+      if (data == null) {
+        data = "";
+      }
+      WritableMap jsResult = Arguments.createMap();
+      jsResult.putString("deviceData", data);
+      promise.resolve(jsResult);
+    });
+  }
+
+  @ReactMethod
   public void show(final ReadableMap options, final Promise promise) {
     isVerifyingThreeDSecure = false;
 
@@ -76,6 +102,10 @@ public class RNBraintreeDropInModule extends ReactContextBaseJavaModule {
 
     if(options.hasKey("vaultManager")) {
       dropInRequest.setVaultManagerEnabled(options.getBoolean("vaultManager"));
+    }
+
+    if(options.hasKey("vaultCardDefaultValue")) {
+      dropInRequest.setVaultCardDefaultValue(options.getBoolean("vaultCardDefaultValue"));
     }
 
     if(options.hasKey("googlePay") && options.getBoolean("googlePay")){
